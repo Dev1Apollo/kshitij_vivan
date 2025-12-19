@@ -1,0 +1,6 @@
+ALTER TABLE `branchmaster` ADD `whatsAppNumber` INT(25) NOT NULL DEFAULT '0' AFTER `AbbreviationName`; 
+
+ALTER TABLE `lead` ADD `support_employee` INT(11) NOT NULL DEFAULT '0' AFTER `strEntryDate`, ADD `transfer_to` INT(11) NOT NULL DEFAULT '0' AFTER `support_employee`; 
+
+ALTER TABLE `leadfollowup` ADD `support_employee` INT(11) NOT NULL DEFAULT '0' AFTER `strEntryDate`, ADD `transfer_to` INT(11) NOT NULL DEFAULT '0' AFTER `support_employee`; 
+

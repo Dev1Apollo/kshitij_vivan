@@ -1,0 +1,185 @@
+<?php
+ob_start();
+error_reporting(E_ALL);
+require_once '../common.php';
+$connect = new connect();
+include('IsLogin.php');
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title><?php echo $ProjectName; ?> | Target </title>
+    <?php include_once './include.php'; ?>
+    <link href="demo/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="page-container-bg-solid page-boxed">
+    <?php include_once './header.php'; ?>
+    <div style="display: none; z-index: 10060;" id="loading">
+        <img id="loading-image" src="<?php echo $web_url; ?>Supervisor/images/loader1.gif">
+    </div>
+    <div class="page-container">
+        <div class="page-content-wrapper">
+            <div class="page-content">
+                <div class="container">
+                    <div class="page-content-inner">
+                        <div class="col-md-2">
+                            <?php include_once './menu-lms.php'; ?>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption grey-gallery">
+                                        <i class="icon-settings grey-gallery"></i>
+                                        <span class="caption-subject bold uppercase" id="listdetail">List of Target</span>
+                                    </div>
+                                    <?php
+                                    //                                        $filterTarget = mysqli_query($dbconn,"Select * from target where month = MONTH(CURRENT_DATE()) and year = YEAR(CURRENT_DATE()) and isDelete = 0 and iStatus=1");
+                                    //                                        if (mysqli_num_rows($filterTarget) > 0) { }else{
+                                    ?>
+                                    <a href="<?php echo $web_url; ?>Supervisor/AddTarget.php" class="btn blue" style="float: right;" title="Add Target">ADD Target</a>
+                                    <?php // } 
+                                    ?>
+                                </div>
+                                <div class="portlet-body form">
+                                    <form role="form" method="POST" action="" name="frmSearch" id="frmSearch" enctype="multipart/form-data">
+                                        <div class="row m-search-box">
+                                            <div class="col-md-12">
+                                                <div class="form-group col-md-offset-1 col-md-3">
+                                                    <input type="text" name="FormDate" class="form-control" id="FormDate" placeholder="Enter The Form Date" />
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <input type="text" name="ToDate" class="form-control" id="ToDate" placeholder="Enter The To Date" />
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <select class="form-control" name="branch" id="branch">
+                                                        <option value="">Select Branch</option>
+                                                        <?php
+                                                        $filterBranch = mysqli_query($dbconn, "SELECT * FROM `branchmaster`  where isDelete='0' order by  branchid asc");
+                                                        while ($rowsBranch = mysqli_fetch_array($filterBranch)) {
+                                                            echo "<option value='" . $rowsBranch['branchid'] . "'>" . $rowsBranch['branchname'] . "</option>";
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group  col-md-2">
+                                                    <a href="#" class="btn btn-block blue pull-right" onclick="PageLoadData(1);"><i class="fa fa-search"></i>&nbsp;&nbsp;Search</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <div id="PlaceUsersDataHere">
+                                        <div class="row" id="nodataFound">
+                                            <div class="col-lg-12 col-md-12  col-xs-12 col-sm-12 padding-5 bottom-border-verydark">
+                                                <div class="alert alert-info clearfix profile-information padding-all-10 margin-all-0 backgroundDark">
+                                                    <h1 class="font-white text-center"> No Data Found ! </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php include_once './footer.php'; ?>
+    <script src="demo/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#FormDate").datepicker({
+                format: 'dd-mm-yyyy',
+                minDate: 0,
+                autoclose: true,
+                todayHighlight: true,
+            });
+            $("#ToDate").datepicker({
+                format: 'dd-mm-yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                defaultDate: "now",
+            });
+        });
+
+        function deletedata(task, id) {
+            var errMsg = '';
+            if (task == 'Delete') {
+                errMsg = 'Are you sure to delete?';
+            }
+            if (confirm(errMsg)) {
+                $('#loading').css("display", "block");
+                $.ajax({
+                    type: "POST",
+                    url: "<?php echo $web_url; ?>Supervisor/AjaxTarget.php",
+                    data: {
+                        action: task,
+                        ID: id
+                    },
+                    success: function(msg) {
+                        $('#loading').css("display", "none");
+                        window.location.href = '';
+                        return false;
+                    },
+                });
+            }
+            return false;
+        }
+
+        function FreezeTarget(task, id) {
+            var errMsg = '';
+            if (task == 'FreezeTarget') {
+                errMsg = 'Are you sure to Freeze Target?';
+            }
+            if (confirm(errMsg)) {
+                $('#loading').css("display", "block");
+                $.ajax({
+                    type: "POST",
+                    url: "<?php echo $web_url; ?>Supervisor/AjaxTarget.php",
+                    data: {
+                        action: task,
+                        ID: id
+                    },
+                    success: function(msg) {
+                        $('#loading').css("display", "none");
+                        window.location.href = '';
+                        return false;
+                    },
+                });
+            }
+            return false;
+        }
+
+        function PageLoadData(Page) {
+
+            var FormDate = $('#FormDate').val();
+            var ToDate = $('#ToDate').val();
+            var branch = $('#branch').val();
+            $('#loading').css("display", "block");
+            $.ajax({
+                type: "POST",
+                url: "<?php echo $web_url; ?>Supervisor/AjaxTarget.php",
+                data: {
+                    action: 'ListUser',
+                    Page: Page,
+                    FormDate: FormDate,
+                    ToDate: ToDate,
+                    branch: branch
+                },
+                success: function(msg) {
+                    $('#nodataFound').hide();
+                    document.getElementById("listdetail").innerHTML = "List of Target";
+                    $("#PlaceUsersDataHere").html(msg);
+                    $('#loading').css("display", "none");
+                },
+            });
+        } // end of filter
+        //PageLoadData(1);
+    </script>
+</body>
+
+</html>
