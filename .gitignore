@@ -1,0 +1,10 @@
+# Logs
+Supervisor/error_log
+storage/logs/
+*.log
+
+# Database
+*.sql
+
+# Environment
+.env
